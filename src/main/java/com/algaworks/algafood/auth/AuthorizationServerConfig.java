@@ -18,9 +18,12 @@ import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+
+import com.algaworks.algafood.auth.core.JwtCustomCliamsTokenEnhancer;
 
 @Configuration
 @EnableAuthorizationServer
@@ -49,12 +52,12 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 				.authorizedGrantTypes("password", "refresh_token")
 				.accessTokenValiditySeconds(6*24*60*60)
 				.refreshTokenValiditySeconds(12*24*60*60)
-				.scopes("write", "read")
+				.scopes("WRITE", "READ")
 		.and()
 				.withClient("alga-backend")
 				.secret(passwordEncoder.encode("123"))
 				.authorizedGrantTypes("client_credentials")
-				.scopes("write","read")
+				.scopes("WRITE")
 				
 		.and()
 				  .withClient("alga-implicit")
@@ -66,7 +69,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 			  .withClient("alga-code")
 			  .secret(passwordEncoder.encode("code123"))
 			  .authorizedGrantTypes("authorization_code")
-			  .scopes("write", "read")
+			  .scopes("READ")
 			//  .redirectUris("http://aplicacao-cliente");
 			 // .redirectUris("http://www.foodanalytics.local:8082");
 	           .redirectUris("http://localhost:8082");				
@@ -77,11 +80,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+		
+		var enhancerChain = new TokenEnhancerChain();
+		enhancerChain.setTokenEnhancers(Arrays.asList(new JwtCustomCliamsTokenEnhancer(), jwtAccessTokenConverter()));
+		
 		endpoints
 			.authenticationManager(authenticationManager)
 			.userDetailsService(userDetailsService)
 			.reuseRefreshTokens(false)
 			.accessTokenConverter(jwtAccessTokenConverter())
+			.tokenEnhancer(enhancerChain)
 			.approvalStore(approvalStore(endpoints.getTokenStore()))
 			.tokenGranter(tokenGranter(endpoints));
 	}

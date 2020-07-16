@@ -12,43 +12,25 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
-public class Usuario {
-
+public class Grupo {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id; 
+	private Long id;
 	
 	@NotNull
 	@Column(nullable = false)
 	private String nome; 
 	
-	@Email
-	@NotBlank
-	private String email; 
-	
-	@NotBlank
-	private String senha; 
-	
 	@ManyToMany
-	@JoinTable(name = "usuario_grupo", joinColumns = @JoinColumn(name = "usuario_id"),
-			inverseJoinColumns = @JoinColumn(name = "grupo_id"))
-	private Set<Grupo> grupos = new HashSet<>();
-	
-	
-	
-	public Set<Grupo> getGrupos() {
-		return grupos;
-	}
-
-	public void setGrupos(Set<Grupo> grupos) {
-		this.grupos = grupos;
-	}
+	@JoinTable(name = "grupo_permissao", 
+	joinColumns = @JoinColumn(name="grupo_id"),
+	inverseJoinColumns = @JoinColumn(name="permissao_id"))
+	private Set<Permissao> permissoes = new HashSet<>();
 
 	public Long getId() {
 		return id;
@@ -66,22 +48,13 @@ public class Usuario {
 		this.nome = nome;
 	}
 
-	public String getEmail() {
-		return email;
+	public Set<Permissao> getPermissoes() {
+		return permissoes;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setPermissoes(Set<Permissao> permissoes) {
+		this.permissoes = permissoes;
 	}
-
-	public String getSenha() {
-		return senha;
-	}
-
-	public void setSenha(String senha) {
-		this.senha = senha;
-	}
-
 
 	@Override
 	public int hashCode() {
@@ -99,7 +72,7 @@ public class Usuario {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Usuario other = (Usuario) obj;
+		Grupo other = (Grupo) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -107,7 +80,13 @@ public class Usuario {
 			return false;
 		return true;
 	}
+
+	public boolean associarPermissaoGrupo(Permissao permissao) {
+		return getPermissoes().add(permissao);
+	}
 	
-	
+	public boolean dissociarPermissaoGrupo(Permissao permissao) {
+		return getPermissoes().remove(permissao);
+	}
 	
 }
