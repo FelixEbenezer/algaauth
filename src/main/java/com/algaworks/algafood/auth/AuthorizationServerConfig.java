@@ -2,6 +2,8 @@ package com.algaworks.algafood.auth;
 
 import java.util.Arrays;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,9 +46,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private UserDetailsService userDetailsService; 
 	
+	@Autowired
+	private DataSource dataSource; 
+	
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-	clients.inMemory()
+	
+		
+		clients.jdbc(dataSource);
+		/*
+		clients.inMemory()
 				.withClient("algafood-web")
 				.secret(passwordEncoder.encode("web123"))
 				.authorizedGrantTypes("password", "refresh_token")
@@ -73,6 +82,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 			//  .redirectUris("http://aplicacao-cliente");
 			 // .redirectUris("http://www.foodanalytics.local:8082");
 	           .redirectUris("http://localhost:8082");				
+	           
+	           */
 
 		
 	}

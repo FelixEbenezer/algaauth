@@ -20,6 +20,7 @@ public class WebSecurityOauthConfig extends WebSecurityConfigurerAdapter {
 			.roles("ADMIN");
 	}
 	*/
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
